@@ -53,7 +53,9 @@ services:
       # dev/test instances create the root account with this password (root / test)
       PT_INITIAL_ROOT_PASSWORD: test
       # Config overrides (the server runs inside the compose network here)
-      NODE_CONFIG: '{"database":{"hostname":"postgres","port":5432},"redis":{"hostname":"redis","port":6379},"listen":{"hostname":"0.0.0.0"}}'
+      # password_constraints: the sandbox administrator account uses the short
+      # dev password "root" (dev.yaml sets a 6 character minimum)
+      NODE_CONFIG: '{"database":{"hostname":"postgres","port":5432},"redis":{"hostname":"redis","port":6379},"listen":{"hostname":"0.0.0.0"},"user":{"password_constraints":{"min_length":4}}}'
       # Angular (Vite) dev server host allowlist: the preview proxy forwards its own
       # hostname, and the sandbox hostname changes on every environment recreate.
       __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: 3000-${BASE44_PUBLIC_HOST_SUFFIX:-localhost},.${BASE44_SANDBOX_HOST_DOMAIN:-localhost}

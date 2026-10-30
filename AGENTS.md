@@ -436,6 +436,12 @@ so nothing is baked into an image.
   variable; no file under `config/` is modified for the sandbox.
 - The instance runs with `NODE_ENV=dev`, which creates the administrator
   `root` / `test` on first boot and uses `config/dev.yaml`.
+- A second administrator account `admin` / `root` (`admin@peertube.local`) is
+  created through the API on this sandbox database for day-to-day use. The
+  compose `NODE_CONFIG` relaxes `user.password_constraints.min_length` to 4 so
+  that password is accepted (dev.yaml requires 6). Both accounts live in the
+  `postgres-data` volume: after removing it, recreate `admin` with
+  `POST /api/v1/users` as `root` and this `NODE_CONFIG` in place.
 - First boot takes several minutes (dependency install + TypeScript + Angular
   compile). The compose healthcheck allows 600s and probes both
   `http://127.0.0.1:3000/` and `http://127.0.0.1:9000/api/v1/config`.
