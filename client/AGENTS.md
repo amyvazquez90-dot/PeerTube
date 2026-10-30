@@ -53,8 +53,12 @@ npm run dev:embed
 ```
 
 The Angular dev server proxies `/api`, `/plugins`, `/themes`,
-`/static`, `/lazy-static`, `/socket.io`, and `/client/assets` to the
-backend at `http://127.0.0.1:9000` (see `proxy.config.json`).
+`/static`, `/lazy-static`, `/socket.io`, `/client/assets`,
+`/client/locales`, and `/manifest.webmanifest` to the backend at
+`http://127.0.0.1:9000` (see `proxy.config.json`). `/manifest.webmanifest`
+must be proxied: `src/index.html` requests it with the literal
+`?[manifestContentHash]` placeholder that only the backend replaces, so
+the dev server would otherwise answer 404.
 
 ### Build
 
