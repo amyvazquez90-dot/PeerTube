@@ -3,10 +3,6 @@
     "target": "http://127.0.0.1:9000",
     "secure": false
   },
-  "/plugins": {
-    "target": "http://127.0.0.1:9000",
-    "secure": false
-  },
   "/themes": {
     "target": "http://127.0.0.1:9000",
     "secure": false

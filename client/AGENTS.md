@@ -52,10 +52,12 @@ npm run dev:client
 npm run dev:embed
 ```
 
-The Angular dev server proxies `/api`, `/plugins`, `/themes`,
-`/static`, `/lazy-static`, `/socket.io`, `/client/locales`, and
-`/manifest.webmanifest` to the backend at `http://127.0.0.1:9000` (see
-`proxy.config.json`). `/manifest.webmanifest` must be proxied:
+The Angular dev server proxies `/api`, `/themes`, `/static`,
+`/lazy-static`, `/socket.io`, `/client/locales`, and `/manifest.webmanifest`
+to the backend at `http://127.0.0.1:9000` (see `proxy.config.json`). `/plugins`
+is intentionally handled by the dev server: proxying its root path causes the
+backend to look for a production-only `client/dist/en-US/index.html` file.
+`/manifest.webmanifest` must be proxied:
 `src/index.html` requests it with the literal `?[manifestContentHash]`
 placeholder that only the backend replaces, so the dev server would
 otherwise answer 404.
