@@ -53,12 +53,20 @@ npm run dev:embed
 ```
 
 The Angular dev server proxies `/api`, `/plugins`, `/themes`,
-`/static`, `/lazy-static`, `/socket.io`, `/client/assets`,
-`/client/locales`, and `/manifest.webmanifest` to the backend at
-`http://127.0.0.1:9000` (see `proxy.config.json`). `/manifest.webmanifest`
-must be proxied: `src/index.html` requests it with the literal
-`?[manifestContentHash]` placeholder that only the backend replaces, so
-the dev server would otherwise answer 404.
+`/static`, `/lazy-static`, `/socket.io`, `/client/locales`, and
+`/manifest.webmanifest` to the backend at `http://127.0.0.1:9000` (see
+`proxy.config.json`). `/manifest.webmanifest` must be proxied:
+`src/index.html` requests it with the literal `?[manifestContentHash]`
+placeholder that only the backend replaces, so the dev server would
+otherwise answer 404.
+
+`/client/assets` is **not** proxied to the backend. The backend's
+generated manifest and server config reference icons/avatars as
+`/client/assets/images/...`, a path that only exists once
+`client/dist/browser` is built (`express.static` on the client dist).
+In development that directory doesn't exist, so the request 404s. The
+entry rewrites `/client/assets` to `/assets` and targets the dev server
+itself, which serves `src/assets/images` there.
 
 ### Build
 

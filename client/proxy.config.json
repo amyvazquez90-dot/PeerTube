@@ -29,8 +29,11 @@
     "ws": true
   },
   "/client/assets": {
-    "target": "http://127.0.0.1:9000",
-    "secure": false
+    "target": "http://127.0.0.1:3000",
+    "secure": false,
+    "pathRewrite": {
+      "^/client/assets": "/assets"
+    }
   },
   "/client/locales": {
     "target": "http://127.0.0.1:9000",
