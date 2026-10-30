@@ -1,0 +1,92 @@
+name: peertube
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: on-failure
+    environment:
+      POSTGRES_USER: peertube
+      POSTGRES_PASSWORD: peertube
+      POSTGRES_DB: peertube_dev
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U peertube -d peertube_dev" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    labels:
+      base44.project: PostgreSQL
+      base44.kind: infra
+
+  redis:
+    image: redis:7-alpine
+    restart: on-failure
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+    labels:
+      base44.project: Redis
+      base44.kind: infra
+
+  app:
+    build:
+      context: .
+      dockerfile: support/docker/base44/Dockerfile
+    restart: on-failure
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: dev
+      # Makes the server build/refresh its HTML pages against the Angular dev server
+      ANGULAR_CLIENT_ENABLED: "true"
+      # dev/test instances create the root account with this password (root / test)
+      PT_INITIAL_ROOT_PASSWORD: test
+      # Config overrides (the server runs inside the compose network here)
+      NODE_CONFIG: '{"database":{"hostname":"postgres","port":5432},"redis":{"hostname":"redis","port":6379},"listen":{"hostname":"0.0.0.0"}}'
+      # Angular (Vite) dev server host allowlist: the preview proxy forwards its own
+      # hostname, and the sandbox hostname changes on every environment recreate.
+      __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: 3000-${BASE44_PUBLIC_HOST_SUFFIX:-localhost},.${BASE44_SANDBOX_HOST_DOMAIN:-localhost}
+      BASE44_PREVIEW_MODE: ${BASE44_PREVIEW_MODE:-}
+      BASE44_SANDBOX_HOST_DOMAIN: ${BASE44_SANDBOX_HOST_DOMAIN:-}
+      BASE44_PUBLIC_HOST_SUFFIX: ${BASE44_PUBLIC_HOST_SUFFIX:-}
+    volumes:
+      - .:/app
+      - pnpm-store:/pnpm-store
+    # CI=true keeps pnpm non-interactive. A node_modules directory left from a
+    # previous run/store makes pnpm ask "remove and reinstall from scratch?" and
+    # wait forever on stdin, stalling startup.
+    command: [ "sh", "-ec", "CI=true pnpm install --frozen-lockfile --store-dir /pnpm-store && exec npm run dev" ]
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - >-
+          node -e "Promise.all([
+          fetch('http://127.0.0.1:3000/'),
+          fetch('http://127.0.0.1:9000/api/v1/config')
+          ]).then(async ([client, api]) => {
+          if (!client.ok) { console.error('client responded ' + client.status); process.exit(1) }
+          if (!api.ok) { console.error('server responded ' + api.status); process.exit(1) }
+          }).catch(err => { console.error(err.message); process.exit(1) })"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 600s
+    labels:
+      base44.project: PeerTube
+      base44.kind: web
+      base44.port: 3000
+
+volumes:
+  postgres-data:
+  pnpm-store:

@@ -416,3 +416,35 @@ Export to Jaeger (tracing) or Prometheus (metrics) is configurable in
   — Library / business-logic documentation
 - [SECURITY.md](SECURITY.md) — Vulnerability disclosure policy
 - [FAQ.md](FAQ.md) — Frequently asked questions
+
+## Base44 Sandbox Environment
+
+The app runs through `docker-compose.base44.yml` (Postgres 16 + Redis 7 + one
+`app` service). `support/docker/base44/Dockerfile` only installs system
+dependencies (ffmpeg, pnpm 10.15.1, build tools); the repository is bind-mounted,
+so nothing is baked into an image.
+
+- `app` runs `pnpm install --frozen-lockfile && npm run dev`: the project's own
+  dev pipeline (standalone player build, `ng serve` on port 3000, `tsc-watch`
+  server on port 9000). The Angular dev server proxies `/api`, `/static`,
+  `/lazy-static` and `/socket.io` to the server, so only port 3000 is published.
+- The compose command runs `CI=true pnpm install --frozen-lockfile` before the dev
+  command. The bind-mounted `node_modules` can come from a different pnpm store,
+  and without `CI=true` pnpm asks "remove and reinstall from scratch?" and waits
+  on stdin forever, so the container never starts serving.
+- Postgres/Redis hostnames are overridden with the `NODE_CONFIG` environment
+  variable; no file under `config/` is modified for the sandbox.
+- The instance runs with `NODE_ENV=dev`, which creates the administrator
+  `root` / `test` on first boot and uses `config/dev.yaml`.
+- First boot takes several minutes (dependency install + TypeScript + Angular
+  compile). The compose healthcheck allows 600s and probes both
+  `http://127.0.0.1:3000/` and `http://127.0.0.1:9000/api/v1/config`.
+- The preview proxy forwards its own hostname, which the Vite dev server rejects
+  by default. Compose passes `__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS` built from
+  `BASE44_PUBLIC_HOST_SUFFIX` / `BASE44_SANDBOX_HOST_DOMAIN` (Vite appends it to
+  `server.allowedHosts`); `ng serve` has no array-valued `--allowed-hosts` flag,
+  which is why the environment variable is used instead of CLI arguments.
+- Verify a running stack with `curl -s -o /dev/null -w "%{http_code}"
+  http://localhost:3000/` and `http://localhost:3000/api/v1/config` (both 200).
+- In this mode SPA routes are served by the Angular dev server, so PeerTube's
+  server-rendered HTML pages (OpenGraph/oEmbed tags) are not exercised.
