@@ -21,6 +21,7 @@ import {
   AdminConfigVODComponent
 } from './pages'
 import { AdminConfigCustomizationComponent } from './pages/admin-config-customization.component'
+import { AdminConfigStorageComponent } from './pages/admin-config-storage.component'
 import { AdminConfigService } from '../../shared/shared-admin/admin-config.service'
 import { AdminConfigLogoComponent } from './pages/admin-config-logo.component'
 import { InstanceLogoService } from '../../shared/shared-instance/instance-logo.service'
@@ -185,6 +186,15 @@ export const configRoutes: Routes = [
         data: {
           meta: {
             title: $localize`Live configuration`
+          }
+        }
+      },
+      {
+        path: 'storage',
+        component: AdminConfigStorageComponent,
+        data: {
+          meta: {
+            title: $localize`Storage management`
           }
         }
       },

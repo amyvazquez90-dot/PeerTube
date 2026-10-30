@@ -448,3 +448,15 @@ so nothing is baked into an image.
   http://localhost:3000/` and `http://localhost:3000/api/v1/config` (both 200).
 - In this mode SPA routes are served by the Angular dev server, so PeerTube's
   server-rendered HTML pages (OpenGraph/oEmbed tags) are not exercised.
+- The Angular bundle is compiled by the dev server, and a TypeScript/template
+  error there fails *every* page (the app keeps serving the last good bundle), so
+  after touching client code check `docker compose logs app | grep "Application
+  bundle generation"` until it reports `complete`. Type-check and lint the client
+  inside the container: `cd client && ./node_modules/.bin/eslint <files>` and
+  `./node_modules/.bin/stylelint <files>`.
+- To call the API as an administrator (e.g. to check a config change persisted),
+  take the credentials from `GET /api/v1/oauth-clients/local` and send them as
+  `client_id` / `client_secret` **form fields** — an HTTP Basic header is
+  rejected with `invalid_client`:
+  `curl -d "client_id=…&client_secret=…&grant_type=password&username=root&password=test&response_type=code&scope=upload" http://localhost:3000/api/v1/users/token`.
+  The dev instance's administrator is `root` / `test`.

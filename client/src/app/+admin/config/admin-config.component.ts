@@ -57,6 +57,11 @@ export class AdminConfigComponent implements OnInit {
           label: $localize`Live`,
           routerLink: 'live'
         },
+        {
+          type: 'link',
+          label: $localize`Storage`,
+          routerLink: 'storage'
+        },
 
         { type: 'separator' },
 

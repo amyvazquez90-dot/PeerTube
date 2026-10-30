@@ -80,6 +80,10 @@
                 @if (channelVideosCount !== undefined) {
                   <span class="videos-count" i18n>{channelVideosCount, plural, =0 {No videos} =1 {1 video} other {{{ channelVideosCount }} videos}}</span>
                 }
+
+                @if (channelShortsCount !== undefined) {
+                  <span class="shorts-count" i18n>{channelShortsCount, plural, =0 {No Shorts} =1 {1 Short} other {{{ channelShortsCount }} Shorts}}</span>
+                }
               </div>
             </div>
             <div class="channel-buttons right">

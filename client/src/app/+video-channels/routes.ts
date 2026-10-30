@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router'
 import { VideoChannelPlaylistsComponent } from './video-channel-playlists/video-channel-playlists.component'
+import { VideoChannelShortsComponent } from './video-channel-shorts/video-channel-shorts.component'
 import { VideoChannelVideosComponent } from './video-channel-videos/video-channel-videos.component'
 import { VideoChannelsComponent } from './video-channels.component'
 import { AbuseService } from '@app/shared/shared-moderation/abuse.service'
@@ -32,6 +33,16 @@ export default [
           reuse: {
             enabled: true,
             key: 'video-channel-videos-list'
+          }
+        }
+      },
+      {
+        path: 'shorts',
+        component: VideoChannelShortsComponent,
+        data: {
+          reuse: {
+            enabled: true,
+            key: 'video-channel-shorts-list'
           }
         }
       },

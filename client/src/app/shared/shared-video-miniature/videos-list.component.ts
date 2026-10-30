@@ -290,6 +290,12 @@ export class VideosListComponent implements OnInit {
   }
 
   private reloadSyndicationItems () {
+    // Syndication feeds are optional: a list without them simply displays no feed button
+    if (!this.getSyndicationItemsFunction()) {
+      this.syndicationItems = undefined
+      return
+    }
+
     Promise.resolve(this.getSyndicationItemsFunction()(this.filters))
       .then(items => {
         if (!items || items.length === 0) this.syndicationItems = undefined

@@ -18,6 +18,8 @@ import { VideoGoLiveComponent } from './live/video-go-live.component'
 import { VideoUploadComponent } from './upload/video-upload.component'
 import { VideoPublishResolverData } from './video-publish.resolver'
 
+export type UploadType = 'normal' | 'short' | 'live'
+
 @Component({
   selector: 'my-video-publish',
   templateUrl: './video-publish.component.html',
@@ -64,6 +66,9 @@ export class VideoPublishComponent implements OnInit, CanComponentDeactivate {
   videoName: string
 
   activeNav: string
+
+  // Which kind of content the user is publishing: regular video, Short or livestream
+  uploadType: UploadType = 'normal'
 
   uploadMessages: {
     noQuota: string
@@ -201,12 +206,23 @@ export class VideoPublishComponent implements OnInit, CanComponentDeactivate {
   onNavChange (newActiveNav: VideoManageType) {
     this.activeNav = newActiveNav
 
+    // Keep the content type selection in sync with the selected tab
+    if (newActiveNav === 'go-live') this.uploadType = 'live'
+    else if (this.uploadType === 'live') this.uploadType = 'normal'
+
     this.manageController.setConfig({
       manageType: newActiveNav,
       serverConfig: this.serverConfig
     })
 
     this.router.navigate([], { fragment: this.activeNav })
+  }
+
+  selectUploadType (type: UploadType) {
+    this.uploadType = type
+
+    // Livestreams use the existing live pipeline, Shorts and regular videos the upload pipeline
+    this.onNavChange(type === 'live' ? 'go-live' : 'upload')
   }
 
   onFirstStepDone (type: VideoManageType, videoName: string) {

@@ -128,6 +128,11 @@ export class MenuComponent implements OnInit, OnDestroy {
           query: this.redirectService.getDefaultRouteQuery(),
           icon: 'home',
           label: $localize`Home`
+        },
+        {
+          path: '/shorts',
+          icon: 'play',
+          label: $localize`Shorts`
         }
       ]
     }

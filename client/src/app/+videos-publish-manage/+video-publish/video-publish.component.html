@@ -58,6 +58,32 @@
   <div class="margin-content">
     @if (!isInSecondStep()) {
       <ng-template [ngTemplateOutlet]="infoMessages"></ng-template>
+
+      <div class="upload-type-selector" role="radiogroup" aria-label="Type of content" i18n-aria-label>
+        <button
+          type="button" class="upload-type" role="radio" [attr.aria-checked]="uploadType === 'normal'"
+          [ngClass]="{ active: uploadType === 'normal' }" (click)="selectUploadType('normal')"
+        >
+          <span class="upload-type-label" i18n>Normal video</span>
+          <span class="upload-type-desc" i18n>A regular video, listed in the Videos tab of your channel</span>
+        </button>
+
+        <button
+          type="button" class="upload-type" role="radio" [attr.aria-checked]="uploadType === 'short'"
+          [ngClass]="{ active: uploadType === 'short' }" (click)="selectUploadType('short')"
+        >
+          <span class="upload-type-label" i18n>Short</span>
+          <span class="upload-type-desc" i18n>A vertical 9:16 video, listed in the Shorts section of your channel</span>
+        </button>
+
+        <button
+          type="button" class="upload-type" role="radio" [attr.aria-checked]="uploadType === 'live'"
+          [ngClass]="{ active: uploadType === 'live' }" (click)="selectUploadType('live')"
+        >
+          <span class="upload-type-label" i18n>Livestream</span>
+          <span class="upload-type-desc" i18n>A live broadcast, using the existing live player</span>
+        </button>
+      </div>
     }
 
     <div ngbNav #nav="ngbNav" class="nav-tabs video-add-nav" [activeId]="activeNav" (activeIdChange)="onNavChange($event)" [ngClass]="{ 'hide-nav': isInSecondStep() }">
@@ -70,6 +96,7 @@
           <my-video-upload
             #videoUpload (firstStepDone)="onFirstStepDone('upload', $event)" (firstStepError)="onError()"
             [userChannels]="userChannels" [userQuota]="userQuota" [highestPrivacy]="highestPrivacy"
+            [shortMode]="uploadType === 'short'"
           ></my-video-upload>
         </ng-template>
       </ng-container>

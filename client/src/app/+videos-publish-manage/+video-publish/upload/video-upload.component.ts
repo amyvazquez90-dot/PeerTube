@@ -5,6 +5,7 @@ import {
   ElementRef,
   OnDestroy,
   OnInit,
+  booleanAttribute,
   inject,
   input,
   output,
@@ -14,6 +15,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 import { VideoEdit } from '@app/+videos-publish-manage/shared-manage/common/video-edit.model'
 import { VideoUploadService } from '@app/+videos-publish-manage/shared-manage/common/video-upload.service'
+import { SHORTS_TAG } from '@app/shared/shared-shorts/shorts'
 import { VideoManageController } from '@app/+videos-publish-manage/shared-manage/video-manage-controller.service'
 import { AuthService, CanComponentDeactivate, HooksService, MetaService, Notifier, ServerService } from '@app/core'
 import { NgbTooltip } from '@ng-bootstrap/ng-bootstrap'
@@ -64,6 +66,9 @@ export class VideoUploadComponent implements OnInit, OnDestroy, AfterViewInit, C
   readonly userChannels = input.required<SelectChannelItem[]>()
   readonly userQuota = input.required<UserVideoQuota>()
   readonly highestPrivacy = input.required<VideoPrivacyType>()
+
+  // Upload the video as a Short: vertical 9:16 video listed in the Shorts sections
+  readonly shortMode = input(false, { transform: booleanAttribute })
 
   readonly firstStepDone = output<string>()
   readonly firstStepError = output()
@@ -230,6 +235,10 @@ export class VideoUploadComponent implements OnInit, OnDestroy, AfterViewInit, C
       support: channel.support ?? '',
       user: this.authService.getUser()
     })
+
+    // Shorts are regular videos flagged with a reserved tag: the existing upload,
+    // transcoding, storage and playback pipeline is reused as-is
+    if (this.shortMode()) this.videoEdit.loadFromCommonForm({ tags: [ SHORTS_TAG ] })
 
     this.manageController.setConfig({ manageType: 'upload', serverConfig: this.serverService.getHTMLConfig() })
     this.manageController.setVideoEdit(this.videoEdit)

@@ -8,12 +8,13 @@ import { VideoChannel } from '@app/shared/shared-main/channel/video-channel.mode
 import { VideoChannelService } from '@app/shared/shared-main/channel/video-channel.service'
 import { HorizontalMenuComponent, HorizontalMenuEntry } from '@app/shared/shared-main/menu/horizontal-menu.component'
 import { VideoService } from '@app/shared/shared-main/video/video.service'
+import { SHORTS_TAG } from '@app/shared/shared-shorts/shorts'
 import { BlocklistService } from '@app/shared/shared-moderation/blocklist.service'
 import { SupportModalComponent } from '@app/shared/shared-support-modal/support-modal.component'
 import { SubscribeButtonComponent } from '@app/shared/shared-user-subscription/subscribe-button.component'
 import { getChannelRSSFeeds } from '@peertube/peertube-core-utils'
-import { HttpStatusCode, UserRight } from '@peertube/peertube-models'
-import { Subscription } from 'rxjs'
+import { HttpStatusCode, UserRight, VideoSortField } from '@peertube/peertube-models'
+import { forkJoin, Subscription } from 'rxjs'
 import { catchError, distinctUntilChanged, map, switchMap } from 'rxjs/operators'
 import { ActorAvatarComponent } from '../shared/shared-actor-image/actor-avatar.component'
 import { GlobalIconComponent } from '../shared/shared-icons/global-icon.component'
@@ -61,6 +62,7 @@ export class VideoChannelsComponent implements OnInit, OnDestroy {
   isChannelManageable = false
 
   channelVideosCount: number
+  channelShortsCount: number
   ownerDescriptionHTML = ''
   channelDescriptionHTML = ''
   channelDescriptionExpanded = false
@@ -131,6 +133,7 @@ export class VideoChannelsComponent implements OnInit, OnDestroy {
 
     this.links = [
       { label: $localize`Videos`, routerLink: 'videos' },
+      { label: $localize`Shorts`, routerLink: 'shorts' },
       { label: $localize`Playlists`, routerLink: 'video-playlists' }
     ]
   }
@@ -190,14 +193,24 @@ export class VideoChannelsComponent implements OnInit, OnDestroy {
   }
 
   private loadChannelVideosCount () {
-    this.videoService.listChannelVideos({
+    const baseOptions = {
       videoChannel: this.videoChannel,
       videoPagination: {
         currentPage: 1,
         itemsPerPage: 0
       },
-      sort: '-publishedAt'
-    }).subscribe(res => this.channelVideosCount = res.total)
+      sort: '-publishedAt' as VideoSortField
+    }
+
+    forkJoin({
+      all: this.videoService.listChannelVideos(baseOptions),
+      shorts: this.videoService.listChannelVideos({ ...baseOptions, tagsAllOf: [ SHORTS_TAG ] })
+    }).subscribe(({ all, shorts }) => {
+      this.channelShortsCount = shorts.total
+
+      // "Videos" counter only counts regular videos, Shorts have their own counter
+      this.channelVideosCount = Math.max(0, all.total - shorts.total)
+    })
   }
 
   private loadOwnerBlockStatus () {

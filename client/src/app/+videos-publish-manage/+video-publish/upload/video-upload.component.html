@@ -1,4 +1,10 @@
 @if (firstStep) {
+  @if (shortMode()) {
+    <div class="alert alert-info">
+      <span i18n>You are publishing a Short. Shorts are vertical (9:16) videos, displayed in the Shorts sections of the platform.</span>
+    </div>
+  }
+
   <div class="upload-video-container" myDragDrop (fileDropped)="onFileDropped($event)">
     <div class="first-step-block">
       <my-global-icon class="upload-icon" iconName="upload" aria-hidden="true"></my-global-icon>

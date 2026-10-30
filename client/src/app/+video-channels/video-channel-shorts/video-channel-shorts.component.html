@@ -1,0 +1,16 @@
+<h1 class="visually-hidden" i18n>Shorts</h1>
+
+@if (videoChannel) {
+  <my-videos-list
+    #videosList
+    [getVideosObservableFunction]="getVideosObservableFunction"
+    [defaultSort]="defaultSort"
+    displayFilters="true"
+    displayBy="false"
+    [displayAsRow]="displayAsRow()"
+    hideScopeFilter="true"
+    loadUserVideoPreferences="true"
+    [disabled]="disabled"
+    >
+  </my-videos-list>
+}

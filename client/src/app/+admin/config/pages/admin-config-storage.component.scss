@@ -1,0 +1,61 @@
+@use '_variables' as *;
+@use '_mixins' as *;
+
+.storage-block {
+  @include margin-bottom(2rem);
+
+  h2 {
+    font-size: 20px;
+
+    @include margin-bottom(1rem);
+  }
+}
+
+.storage-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.storage-stat {
+  flex: 1 1 180px;
+  padding: 15px;
+  border-radius: 5px;
+  background-color: pvar(--bg-secondary-350);
+}
+
+.storage-stat-value {
+  font-size: 24px;
+  font-weight: $font-bold;
+}
+
+.storage-stat-label {
+  font-size: 13px;
+  color: pvar(--fg-300);
+}
+
+.storage-mode {
+  @include margin-bottom(1rem);
+}
+
+.storage-mode-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: $font-semibold;
+  cursor: pointer;
+
+  input {
+    margin: 0;
+  }
+}
+
+.storage-hint {
+  margin: 4px 0 12px 24px;
+  font-size: 13px;
+  color: pvar(--fg-300);
+}
+
+.storage-limit {
+  max-width: 900px;
+}
